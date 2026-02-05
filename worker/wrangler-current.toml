@@ -1,0 +1,64 @@
+name = "temp-api"
+main = "src/worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
+
+# 如果你想使用自定义域名，你需要添加 routes 配置
+ routes = [
+  { pattern = "api.7373.uk", custom_domain = true },
+ ]
+
+# 如果你想要部署带有前端资源的 worker, 你需要添加 assets 配置
+# [assets]
+# directory = "../frontend/dist/"
+# binding = "ASSETS"
+# run_worker_first = true
+
+# 如果你想要使用定时任务清理邮件，取消下面的注释，并修改 cron 表达式
+# [triggers]
+# crons = [ "0 0 * * *" ]
+
+# 通过 Cloudflare 发送邮件
+ send_email = [
+    { name = "send@7373.uk" },
+ ]
+
+[vars]
+# 邮箱名称前缀，不需要后缀可配置为空字符串或者不配置
+PREFIX = "tmp"
+# 用于临时邮箱的所有域名, 支持多个域名
+DOMAINS = ["737.uk"]
+# 用于生成 jwt 的密钥, jwt 用于给用户登录以及鉴权
+JWT_SECRET = "GGbong"
+
+# admin 控制台密码, 不配置则不允许访问控制台
+ ADMIN_PASSWORDS = ["xm1313."]
+
+# 是否允许用户创建邮件, 不配置则不允许
+ENABLE_USER_CREATE_EMAIL = true
+# 允许用户删除邮件, 不配置则不允许
+ENABLE_USER_DELETE_EMAIL = true
+
+# D1 数据库的名称和 ID 可以在 cloudflare 控制台查看
+[[d1_databases]]
+binding = "DB"
+database_name = "temp_email" # D1 数据库名称
+database_id = "90f7f91f-3017-4115-aad7-978290dd629b" # D1 数据库 ID
+
+# kv config 用于用户注册发送邮件验证码，如果不启用用户注册或不启用注册验证，可以不配置
+ [[kv_namespaces]]
+ binding = "KV"
+ id = "bd6cd0a39efd4434832f154ebb803276"
+
+# 新建地址限流配置 /api/new_address
+# [[unsafe.bindings]]
+# name = "RATE_LIMITER"
+# type = "ratelimit"
+# namespace_id = "1001"
+# # 10 requests per minute
+# simple = { limit = 10, period = 60 }
+
+# 绑定其他 worker 处理邮件，例如通过 auth-inbox ai 能力解析验证码或激活链接
+# [[services]]
+# binding = "AUTH_INBOX"
+# service = "auth-inbox"
